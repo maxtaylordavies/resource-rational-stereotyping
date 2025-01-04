@@ -6,6 +6,9 @@ authors = ["Max Taylor-Davies <maxtaylordavies@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+jax = "^0.4.38"
+tqdm = "^4.67.1"
+seaborn = "^0.13.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
