@@ -26,7 +26,6 @@ def do_blahut_arimoto_iteration(supports: Dict[str, jax.Array], dists: Dict[str,
     n_x, n_z = len(supports["x"]), len(supports["z"])
 
     ##### STEP 1: Update p(z|x) #####
-
     # first use vmap to compute the distortions for all s,x,z
     d_func = lambda x, z: distortion(dists, x, z)
     distortions = jax.vmap(
@@ -44,13 +43,13 @@ def do_blahut_arimoto_iteration(supports: Dict[str, jax.Array], dists: Dict[str,
     dists["p_z_x"] /= jnp.sum(dists["p_z_x"], axis=1)[:,None]
 
     ##### STEP 2: Update p(z) #####
-
     dists["p_z"] = dists["p_z_x"].T @ dists["p_x"]
     dists["p_z"] /= jnp.sum(dists["p_z"])
 
-    ##### STEP 3: Update p(y|z) = sum_x p(y|x)p(x|z) #####
+    ##### STEP 3: Update p(y|z) by marginalising over x #####
     # first compute p(x|z) via Bayes' rule
     dists["p_x_z"] = ((dists["p_z_x"] * dists["p_x"][:, None]) / dists["p_z"][None, :]).T
+    dists["p_x_z"] = jnp.nan_to_num(dists["p_x_z"], nan=1e-9)
     dists["p_x_z"] /= jnp.sum(dists["p_x_z"], axis=1)[:, None]
 
     # then compute p(y|z) = sum_x p(y|x)p(x|z)
