@@ -29,16 +29,18 @@ def kl(p: jax.Array, q: jax.Array) -> jax.Array:
     """
     return jnp.sum(rel_entr(p, q))
 
-# @jax.jit
-def mi(p: jax.Array, q: jax.Array, pq: jax.Array) -> jax.Array:
+def _mi(dists, x, y) -> jax.Array:
     """
     Compute the mutual information between two probability distributions.
 
     Args:
-        p: The first probability distribution.
-        q: The second probability distribution.
+        dists: A dictionary of probability distributions
+        p: The name of the first variable
+        q: The name of the second variable
 
     Returns:
         The mutual information between the two distributions.
     """
-    return entropy(p) + entropy(q) - entropy(pq)
+    return entropy(dists[f"p_{x}"]) + entropy(dists[f"p_{y}"]) - entropy(dists[f"p_{x}{y}"])
+
+mi = jax.jit(_mi, static_argnums=(1, 2))
